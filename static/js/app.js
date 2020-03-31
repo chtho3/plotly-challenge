@@ -9,6 +9,15 @@ d3.json("./data/samples.json").then(function(data){
 //     console.log(otu_ids);
 //     console.log(otu_labels);
 
+    //console.log(data.metadata);
+
+// range of washes
+    var washing = [];
+    for (var i = 0; i < data['metadata'].length; i++) {
+        washing.push(data.metadata[i].wfreq)
+    }
+
+    console.log(washing);
     var sampleIDs = data.names;
 
 //appending sampleIDs to the dropdown menu on load
@@ -76,19 +85,47 @@ function optionChanged() {
         //console.log(data.metadata);
         var metaID = data.metadata[indexID];
         console.log(metaID);
-        var table = d3.select(".sample-metadata").select("tbody");
-        table.data(metaID).enter().append("tr").text(metaID);
-        // var trow = table.append("tr");
-        // trow.append("td").text(`id: ${metaID.id}`);
-        // trow.append("td").text(`ethnicity: ${metaID.ethnicity}`);
-        // trow.append("td").text(`gender: ${metaID.gender}`);
-        // trow.append("td").text(`age: ${metaID.age}`);
-        // trow.append("td").text(`location: ${metaID.location}`);
-        // trow.append("td").text(`bbtype: ${metaID.bbtype}`);
-        // trow.append("td").text(`wfreq: ${metaID.wfreq}`);
+        var panelMetadata = d3.select("#sample-metadata");
+        // Use `.html("") to clear any existing metadata
+        panelMetadata.html("");
+        // Use `Object.entries` to add each key and value pair to the panel
+        Object.entries(metaID).forEach(([key, value]) => {
+        panelMetadata.append("h5").text(`${key}: ${value}`);
+        });
 
 //build wash indicator
-
+        console.log(data.metadata[indexID])
+        var washfreq = data.metadata[indexID].wfreq;
+        var washData = [
+            {
+            type: "indicator",
+            mode: "gauge+number",
+            value: washfreq,
+            title: { text: "Washes" },
+            delta: { reference: 4, increasing: { color: "RebeccaPurple" } },
+            gauge: {
+                axis: { range: [null, 10], tickwidth: 1, tickcolor: "darkblue" },
+                bar: { color: "darkblue" },
+                bgcolor: "white",
+                bordercolor: "gray",
+                steps: [
+                { range: [0, 5], color: "cyan" },
+                { range: [5, 10], color: "royalblue" }
+                ],
+                threshold: {
+                line: { color: "red", width: 4 },
+                thickness: 0.75,
+                }
+            }
+            }
+        ];
+        
+        var layout = {
+            paper_bgcolor: "lavender",
+            font: { color: "darkblue", family: "Arial" }
+        };
+        
+        Plotly.newPlot('gauge', washData, layout);
 
 //build bubble plot
       var trace1 = {
